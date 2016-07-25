@@ -4,7 +4,7 @@ Just a simple script for me to upload my photos to Flickrs
 
 # Setup
 
-    $ pip install -i ./requirements.txt -t ./lib/ 
+    $ pip install -r ./requirements.txt -t ./lib/
 
 # Auth file
 
