@@ -45,10 +45,13 @@ def uploadDir(path):
     albumName = dirname
     for filename in photos:
         filepath = os.path.join(path, filename)
+        i += 1
         if os.path.isfile(filepath):
             uploadPhoto(filepath, newAlbum = True)
+            print i,'/',len(photos)
         elif os.path.isdir(filepath):
             uploadDir(filepath)
+            currentPhotosetsPhotos['photos'] = []
         else:
             pass
 
