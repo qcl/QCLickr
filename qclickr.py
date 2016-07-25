@@ -23,6 +23,7 @@ flickr_api.set_keys(api_key = _config.API_KEY, api_secret = _config.API_SECRT)
 
 photosets = []
 photosetDict = {}
+currentPhotosetsPhotos = {}
 
 def initAPI(auth_filename):
     a = flickr_api.auth.AuthHandler.load(auth_filename)
@@ -42,7 +43,15 @@ def uploadDir(path):
     dirname = os.path.basename(path)
     if dirname == '':
         dirname = os.path.basename(os.path.dirname(path))
+    if type(dirname) == type('string'): # make sure dirname is always unicode str
+        dirname = dirname.decode('utf-8')
     albumName = dirname
+
+    currentPhotosetsPhotos['title'] = dirname
+    currentPhotosetsPhotos['photos'] = {}
+
+    photos.sort()
+    i = 0
     for filename in photos:
         filepath = os.path.join(path, filename)
         i += 1
@@ -51,14 +60,18 @@ def uploadDir(path):
             print i,'/',len(photos)
         elif os.path.isdir(filepath):
             uploadDir(filepath)
-            currentPhotosetsPhotos['photos'] = []
+            currentPhotosetsPhotos['photos'] = {}
         else:
             pass
 
 def createNewAlbum(albumName, photo):
     if not albumName in photosetDict:
+        print 'Prepare to create new album', albumName
+        if type(albumName) == type(u'字串'):
+            albumName = albumName.encode('utf-8')
         photoset = flickr_api.Photoset.create(title = albumName, primary_photo_id = photo.id)
-        photosetDict[albumName] = photoset
+        photosetDict[photoset.title] = photoset
+        print 'Already created', photoset
         return photoset
     else:
         return photosetDict[albumName]
@@ -66,21 +79,43 @@ def createNewAlbum(albumName, photo):
 def uploadPhoto(filename, newAlbum = False):
     if not filename[-4:] in ['.jpg', 'jpeg', '.JPG', 'JPEG', '.png', '.PNG']:
         print 'Not a image'
+        print 'Skip', filename
         return
 
     dirname = os.path.basename(os.path.dirname(filename))
     print 'Prepare to upload', filename
     print 'Which is based in', dirname
 
-    photo = flickr_api.upload(photo_file = filename, is_public = 0, is_friend = 0, is_family = 0)
-    print 'Uploaded', photo
-    if dirname in photosetDict:
+    if type(dirname) == type('string'):
+        dirname = dirname.decode('utf-8')
+
+    #print currentPhotosetsPhotos
+    if len(currentPhotosetsPhotos['photos']) == 0 and dirname in photosetDict:
         photoset = photosetDict[dirname]
-        photoset.addPhoto(photo = photo)
-        print 'Add photo', photo, 'into', photoset 
-    elif newAlbum:
-        photoset = createNewAlbum(dirname, photo)
-        print 'Add photo', photo, 'into', photoset 
+        photos = photoset.getPhotos()
+        for photo in photos:
+            #print photo.title
+            currentPhotosetsPhotos['photos'][photo.title] = photo
+
+    title = os.path.basename(filename).split('.')[0].decode('utf-8')
+    if title in currentPhotosetsPhotos['photos']:
+        print 'Already uploaded. Skip',title
+    else:
+        print 'Uploading', title
+        photo = flickr_api.upload(photo_file = filename, is_public = 0, is_friend = 0, is_family = 0)
+        print 'Uploaded', photo
+
+        if dirname in photosetDict:
+            photoset = photosetDict[dirname]
+            photoset.addPhoto(photo = photo)
+            print 'Add photo', photo, 'into', photoset
+        elif newAlbum:
+            photoset = createNewAlbum(dirname, photo)
+            print 'Add photo', photo, 'into', photoset
+
+        currentPhotosetsPhotos['photos'][photo.title] = photo
+
+    print ''
 
 def uploadPhotos(path):
     user = initAPI('./qcl.auth')
