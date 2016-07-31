@@ -31,8 +31,10 @@ def initAPI(auth_filename):
     user = flickr_api.test.login()
     print 'Hi,',user.username
     print 'Building photo sets...'
-    photosets = user.getPhotosets()
-    for photoset in photosets:
+    w = flickr_api.Walker(user.getPhotosets)
+    #photosets = user.getPhotosets()
+    #print photosets.info
+    for photoset in w:
         #print photoset.title
         photosetDict[photoset.title] = photoset
     return user
@@ -56,8 +58,10 @@ def uploadDir(path):
         filepath = os.path.join(path, filename)
         i += 1
         if os.path.isfile(filepath):
+            print '#',i
             uploadPhoto(filepath, newAlbum = True)
             print i,'/',len(photos)
+            print ''
         elif os.path.isdir(filepath):
             uploadDir(filepath)
             currentPhotosetsPhotos['photos'] = {}
@@ -92,12 +96,24 @@ def uploadPhoto(filename, newAlbum = False):
     #print currentPhotosetsPhotos
     if len(currentPhotosetsPhotos['photos']) == 0 and dirname in photosetDict:
         photoset = photosetDict[dirname]
-        photos = photoset.getPhotos()
-        for photo in photos:
-            #print photo.title
-            currentPhotosetsPhotos['photos'][photo.title] = photo
+        print "Building photos' info in album", dirname
+        #photos = photoset.getPhotos()
+        w = flickr_api.Walker(photoset.getPhotos)
+        for photo in w:
+            if len(photo.title) > 0:
+                #print photo.title
+                currentPhotosetsPhotos['photos'][photo.title] = photo
+            else:
+                pass
 
-    title = os.path.basename(filename).split('.')[0].decode('utf-8')
+    title = os.path.basename(filename)
+    if title[-4] == ".":
+        title = title[:-4]
+    elif title[-5] == '.':
+        title = title[:-5]
+    else:
+        title = title.split('.')[0]
+    title = title.decode('utf-8')
     if title in currentPhotosetsPhotos['photos']:
         print 'Already uploaded. Skip',title
     else:
@@ -114,8 +130,6 @@ def uploadPhoto(filename, newAlbum = False):
             print 'Add photo', photo, 'into', photoset
 
         currentPhotosetsPhotos['photos'][photo.title] = photo
-
-    print ''
 
 def uploadPhotos(path):
     user = initAPI('./qcl.auth')
