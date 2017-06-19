@@ -16,9 +16,21 @@ If you use Homebrew's python and pip, you may encounter an issue like this:
 
     $ ./setup_env_with_homebrew.sh
 
-# Auth file
+# First time use
 
-請參考 flickr_api 的文件
+## Config file
+When first time use QCLickr, just use
+
+    $ python qclickr.py
+
+It will show information about how to create a config file `_config.py`.
+
+## Auth file
+After config file created, use the command again
+
+    $ python qclickr.py 
+
+It will open browser and asking you permission for uploading photo to Flickr. After getting permission, QCLickr will save auth in local via flickr_api. Now you can start to upload your photo to Flickr.
 
 # Usage
 

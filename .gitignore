@@ -1,5 +1,5 @@
 *.swp
 *.pyc
 _config.py
-qcl.auth
+*.auth
 lib/*
