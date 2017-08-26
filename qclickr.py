@@ -142,8 +142,11 @@ def uploadDir(path):
             print i,'/',len(photos)
             print ''
         elif os.path.isdir(filepath):
-            uploadDir(filepath)
-            currentPhotosetsPhotos['photos'] = {}
+            if filename in ['@eaDir']:  # prevent upload synology's config dir
+                pass
+            else:
+                uploadDir(filepath)
+                currentPhotosetsPhotos['photos'] = {}
         else:
             pass
 
