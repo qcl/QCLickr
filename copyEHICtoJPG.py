@@ -35,7 +35,6 @@ def convert(sourceDir, targetDir):
             continue
 
         convertHeicToJpg(filepath, targetPath)
-        break
 
 
 def convertHeicToJpg(sourcePath, targetPath):
