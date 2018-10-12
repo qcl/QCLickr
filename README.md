@@ -35,3 +35,8 @@ It will open browser and asking you permission for uploading photo to Flickr. Af
 # Usage
 
     $ python qclickr.py [dir path or photo path]
+
+# Convert heic to jpg in batch
+
+    $ brew install imagemagick --with-heic
+    $ python3 copyEHICtoJPG.py [source heic dir] [target jpg dir]

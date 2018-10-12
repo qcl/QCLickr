@@ -39,9 +39,7 @@ def convert(sourceDir, targetDir):
 
 def convertHeicToJpg(sourcePath, targetPath):
     print('convert %s to %s' % (sourcePath, targetPath))
-    #FIXME for now, it won't bring EXIF info from heic to png
     subprocess.run(['convert', sourcePath, targetPath])
-    subprocess.run(['exiftool', '-TagsFromFile', sourcePath, targetPath, '-overwrite_original'])
 
 if __name__ == '__main__':
     print('Convert .heic to .jpg in a dir')
